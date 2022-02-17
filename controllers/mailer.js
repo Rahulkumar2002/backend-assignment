@@ -1,35 +1,50 @@
-const nodemailer = require('nodemailer')
+const path = require('path')
+var nodemailer = require('nodemailer')
+var hbs = require('nodemailer-express-handlebars')
+const axios = require('axios');
 
-const sendMail = (req, res) => {
-
+const sendMail = async (req, res) => {
     const { frommail, tomail, password } = req.body
-    const transporter = nodemailer.createTransport({
+
+
+    var transporter = nodemailer.createTransport({
         service: 'gmail',
-        tls: {
-            rejectUnauthorized: false
-        },
         auth: {
             user: String(frommail),
             pass: String(password)
         }
     })
 
-    let mailOptions = {
-        from: String(frommail),
-        to: String(tomail),
-        subject: 'Checking',
-        text: 'Text checking mail'
+    const handlebarOptions = {
+        viewEngine: {
+            extName: ".handlebars",
+            partialsDir: path.resolve('../views'),
+            defaultLayout: false,
+        },
+        viewPath: path.resolve('../views'),
+        extName: ".handlebars",
     }
 
-    transporter.sendMail(mailOptions, (error, response) => {
+    transporter.use('compile', hbs(handlebarOptions));
+
+    var mailOptions = {
+        from: String(frommail),
+        to: String(tomail),
+        subject: 'Your Invoice',
+        template: 'email',
+        context: {
+
+        }
+
+    }
+
+    transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             console.log(error)
-            res.status(500).json({ 'error': error })
         } else {
-            console.log(response)
-            res.status(200).json({ 'response': response })
+            console.log('Email sent: ' + info.response)
+            res.status(200).json({ "Email": info.response })
         }
     })
 }
-
 module.exports = { sendMail }
