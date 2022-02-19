@@ -12,6 +12,7 @@ const getAllInvoice = async (req, res) => {
         res.status(200).json({ "Invoice": invoice })
     } catch (err) {
         console.log(err)
+        res.status(404).json({ "msg": "Invoice not found" })
     }
 }
 
@@ -31,6 +32,7 @@ const getAInvoiceById = async (req, res) => {
         }
     } catch (err) {
         console.log(err)
+        res.status(404).json({ "msg": "Invoice not found" })
     }
 }
 
@@ -40,15 +42,20 @@ const createAInvoice = async (req, res) => {
         res.status(201).json({ "Invoice": newInvoice })
     } catch (err) {
         console.log(err)
+        res.status(500).json("Can't be able to create an invoice.")
     }
 }
 
 const updateAInvoice = async (req, res) => {
     try {
         const updatedInvoice = await Invoice.findByIdAndUpdate(req.params.id, req.body)
+        if (!updateAInvoice) {
+            return res.status(404).json("Invoice not found , try again by checking the id")
+        }
         res.status(200).json({ "updated Invoice": updatedInvoice })
     } catch (err) {
         console.log(err)
+        res.status(500).json("Unable to updated try again later")
     }
 }
 
@@ -62,6 +69,7 @@ const deleteAInvoice = async (req, res) => {
         res.status(204).json({ "Invoice": "Deleted" })
     } catch (err) {
         console.log(err)
+        res.status(500).json("Unable to delete try again later")
     }
 }
 
